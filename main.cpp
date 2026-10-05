@@ -2,6 +2,7 @@
 #include <SDL3/SDL_main.h>
 #include <vector>
 #include <cstdint>
+#include "math/Math.hpp"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -13,7 +14,11 @@ void putPixel(int x, int y, int color, std::vector<uint32_t> &pixels) {
 }
 
 
-void drawLineH(int x0, int y0, int x1, int y1, int color, std::vector<uint32_t> &pixels) {
+void drawLineH(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
+    int x0 = vec0.x;
+    int y0 = vec0.y;
+    int x1 = vec1.x;
+    int y1 = vec1.y;
     if (x0 > x1) {
         int temp = x0;
         x0 = x1;
@@ -44,7 +49,11 @@ void drawLineH(int x0, int y0, int x1, int y1, int color, std::vector<uint32_t> 
     }
 }
 
-void drawLineV(int x0, int y0, int x1, int y1, int color, std::vector<uint32_t> &pixels) {
+void drawLineV(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
+    int x0 = vec0.x;
+    int y0 = vec0.y;
+    int x1 = vec1.x;
+    int y1 = vec1.y;
     if (y0 > y1) {
         int temp = x0;
         x0 = x1;
@@ -75,13 +84,19 @@ void drawLineV(int x0, int y0, int x1, int y1, int color, std::vector<uint32_t> 
     }
 }
 
-void drawLine(int x0, int y0, int x1, int y1, int color, std::vector<uint32_t> &pixels) {
+void drawLine(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
+    int x0 = vec0.x;
+    int y0 = vec0.y;
+    int x1 = vec1.x;
+    int y1 = vec1.y;
     if (std::abs(x1 - x0) > std::abs(y1 - y0)) {
-        drawLineH(x0, y0, x1, y1, color, pixels);
+        drawLineH(vec0, vec1, color, pixels);
     } else {
-        drawLineV(x0, y0, x1, y1, color, pixels);
+        drawLineV(vec0, vec1, color, pixels);
     }
 }
+
+void drawWireFrameTriangle(math::Vec2 vec0, math::Vec2 vec1);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -112,9 +127,14 @@ int main() {
         }
 
         std::fill(pixels.begin(), pixels.end(), 0x000000FF);
-        //drawLine(5, 5, 5, 5, 0xFFFFFFFF, pixels);
-        //drawLine(0, 5, 10, 5, 0xFFFFFFFF, pixels);
-        drawLine(0, 0, 30, -100, 0xFFFFFFFF, pixels);
+        math::Vec2 bruh0;
+        bruh0.x = 0;
+        bruh0.y = 0;
+        math::Vec2 bruh1;
+        bruh1.x = 100;
+        bruh1.y = 100;
+
+        drawLine(bruh0, bruh1, 0xFFFFFFFF, pixels);
 
         SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
         SDL_RenderClear(renderer);
