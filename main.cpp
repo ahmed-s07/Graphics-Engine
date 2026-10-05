@@ -6,6 +6,12 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
+void putPixel(int x, int y, int color, std::vector<uint32_t> &pixels) {
+    x += WIDTH/2;
+    y = HEIGHT/2 - y; 
+    pixels[(y * WIDTH) + x] = color;
+}
+
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -28,12 +34,18 @@ int main() {
     bool running = true;
     SDL_Event event;
 
+
     while(running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) running = false;
         }
 
         std::fill(pixels.begin(), pixels.end(), 0x000000FF);
+        for (int i = 0; i < 32; i++){
+            for (int j = 0; j < 32; j++) {
+                putPixel(i, j, 0xFF0000FF, pixels);
+            }
+        }
 
         SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
         SDL_RenderClear(renderer);
