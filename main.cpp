@@ -7,20 +7,34 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-void putPixel(int x, int y, int color, std::vector<uint32_t> &pixels) {
-    x += WIDTH/2;
-    y = HEIGHT/2 - y; 
-    pixels[(y * WIDTH) + x] = color;
+void putPixel(float x, float y, uint32_t color, std::vector<uint32_t> &pixels) {
+    if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+        throw std::invalid_argument("Invalid Bounds");
+    }
+    int ix = static_cast<int>(x);
+    int iy = static_cast<int>(y);
+    pixels[(int(iy) * WIDTH) + int(ix)] = color;
+}
+
+void putPixel(const math::Vec2 pos, uint32_t color, std::vector<uint32_t> &pixels) {
+    float x = pos.x;
+    float y = pos.y;
+    if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+        throw std::invalid_argument("Invalid Bounds");
+    }
+    int ix = static_cast<int>(x);
+    int iy = static_cast<int>(y);
+    pixels[(int(iy) * WIDTH) + int(ix)] = color;
 }
 
 
 void drawLineH(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
-    int x0 = vec0.x;
-    int y0 = vec0.y;
-    int x1 = vec1.x;
-    int y1 = vec1.y;
+    float x0 = vec0.x;
+    float y0 = vec0.y;
+    float x1 = vec1.x;
+    float y1 = vec1.y;
     if (x0 > x1) {
-        int temp = x0;
+        float temp = x0;
         x0 = x1;
         x1 = temp;
 
@@ -29,16 +43,16 @@ void drawLineH(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t
         y1 = temp;
     }
 
-    int dx = x1-x0;
-    int dy = y1 - y0;
+    float dx = x1-x0;
+    float dy = y1 - y0;
 
-    int dir = (dy < 0) ? -1 : 1;
+    float dir = (dy < 0) ? -1 : 1;
     dy *= dir;
 
     if (dx != 0) {
-        int y = y0;
-        int p = 2*dy - dx;
-        for (int i = 0; i < dx+1; i++) {
+        float y = y0;
+        float p = 2*dy - dx;
+        for (float i = 0; i < dx+1; i++) {
             putPixel(x0+i, y, color, pixels);
             if (p >= 0) {
                 y += dir;
@@ -50,10 +64,10 @@ void drawLineH(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t
 }
 
 void drawLineV(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
-    int x0 = vec0.x;
-    int y0 = vec0.y;
-    int x1 = vec1.x;
-    int y1 = vec1.y;
+    float x0 = vec0.x;
+    float y0 = vec0.y;
+    float x1 = vec1.x;
+    float y1 = vec1.y;
     if (y0 > y1) {
         int temp = x0;
         x0 = x1;
@@ -64,15 +78,15 @@ void drawLineV(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t
         y1 = temp;
     }
 
-    int dx = x1-x0;
-    int dy = y1-y0;
+    float dx = x1-x0;
+    float dy = y1-y0;
 
-    int dir = (dx < 0) ? -1 : 1;
+    float dir = (dx < 0) ? -1 : 1;
     dx *= dir;
 
     if (dy != 0) {
-        int x = x0;
-        int p = 2*dx - dy;
+        float x = x0;
+        float p = 2*dx - dy;
         for (int i = 0; i < dy+1; i++) {
             putPixel(x, y0+i, color, pixels);
             if (p >= 0) {
@@ -85,10 +99,10 @@ void drawLineV(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t
 }
 
 void drawLine(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t> &pixels) {
-    int x0 = vec0.x;
-    int y0 = vec0.y;
-    int x1 = vec1.x;
-    int y1 = vec1.y;
+    float x0 = vec0.x;
+    float y0 = vec0.y;
+    float x1 = vec1.x;
+    float y1 = vec1.y;
     if (std::abs(x1 - x0) > std::abs(y1 - y0)) {
         drawLineH(vec0, vec1, color, pixels);
     } else {
@@ -96,7 +110,12 @@ void drawLine(math::Vec2 vec0, math::Vec2 vec1, int color, std::vector<uint32_t>
     }
 }
 
-void drawWireFrameTriangle(math::Vec2 vec0, math::Vec2 vec1);
+void drawWireFrameTriangle(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, int color, std::vector<uint32_t> &pixels) {
+    drawLine(vec0, vec1, color, pixels);
+    drawLine(vec1, vec2, color, pixels);
+    drawLine(vec2, vec0, color, pixels);
+}
+
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -127,14 +146,13 @@ int main() {
         }
 
         std::fill(pixels.begin(), pixels.end(), 0x000000FF);
-        math::Vec2 bruh0;
-        bruh0.x = 0;
-        bruh0.y = 0;
-        math::Vec2 bruh1;
-        bruh1.x = 100;
-        bruh1.y = 100;
+        
+        math::Vec2 v0 = math::Vec2(300, 300);
+        math::Vec2 v1 = math::Vec2(100, 500);
+        math::Vec2 v2 = math::Vec2(500, 500);
 
-        drawLine(bruh0, bruh1, 0xFFFFFFFF, pixels);
+        drawWireFrameTriangle(v0, v1, v2, 0xFFFFFFFF, pixels);
+        
 
         SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
         SDL_RenderClear(renderer);
