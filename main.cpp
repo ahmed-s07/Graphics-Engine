@@ -116,6 +116,20 @@ void drawWireFrameTriangle(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, in
     drawLine(vec2, vec0, color, pixels);
 }
 
+void triangleFill(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, int color, std::vector<uint32_t> &pixels) {
+    int xMin = std::min(vec0.x, std::min(vec1.x, vec2.x));
+    int yMin = std::min(vec0.y, std::min(vec1.y, vec2.y));
+    int xMax = std::max(vec0.x, std::max(vec1.x, vec2.x));
+    int yMax = std::max(vec0.y, std::max(vec1.y, vec2.y));
+
+    for (int y = yMin; y <= yMax; y++){
+        for (int x = xMin; x<= xMax; x++) {
+            math::Vec2 p = math::Vec2(x, y);
+            putPixel(x, y, color, pixels);
+        }
+    }
+}
+
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -151,7 +165,8 @@ int main() {
         math::Vec2 v1 = math::Vec2(100, 500);
         math::Vec2 v2 = math::Vec2(500, 500);
 
-        drawWireFrameTriangle(v0, v1, v2, 0xFFFFFFFF, pixels);
+        //drawWireFrameTriangle(v0, v1, v2, 0xFFFFFFFF, pixels);
+        triangleFill(v0, v2, v1, 0xFFFFFFFF, pixels);
         
 
         SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
