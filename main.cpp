@@ -116,6 +116,12 @@ void drawWireFrameTriangle(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, in
     drawLine(vec2, vec0, color, pixels);
 }
 
+float edge_cross(math::Vec2 a, math::Vec2 b, math::Vec2 p) {
+    math::Vec2 ab = b - a;
+    math::Vec2 ap = p - a;
+    return ab.cross(ap);
+}
+
 void triangleFill(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, int color, std::vector<uint32_t> &pixels) {
     int xMin = std::min(vec0.x, std::min(vec1.x, vec2.x));
     int yMin = std::min(vec0.y, std::min(vec1.y, vec2.y));
@@ -125,7 +131,14 @@ void triangleFill(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, int color, 
     for (int y = yMin; y <= yMax; y++){
         for (int x = xMin; x<= xMax; x++) {
             math::Vec2 p = math::Vec2(x, y);
-            putPixel(x, y, color, pixels);
+
+            int w0 = edge_cross(vec0, vec1, p);
+            int w1 = edge_cross(vec2, vec0, p);
+            int w2 = edge_cross(vec0, vec1, p);
+
+            if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+                putPixel(x, y, color, pixels);
+            }
         }
     }
 }
