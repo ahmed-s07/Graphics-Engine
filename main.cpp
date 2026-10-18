@@ -122,19 +122,32 @@ float edge_cross(math::Vec2 a, math::Vec2 b, math::Vec2 p) {
     return ab.cross(ap);
 }
 
+bool is_top_left(math::Vec2 start, math::Vec2 end) {
+    math::Vec2 edge = end - start;
+
+    bool top = edge.y == 0 && edge.x > 0;
+    bool left = edge.y < 0;
+
+    return top || left;
+}
+
 void triangleFill(math::Vec2 vec0, math::Vec2 vec1, math::Vec2 vec2, int color, std::vector<uint32_t> &pixels) {
     int xMin = std::min(vec0.x, std::min(vec1.x, vec2.x));
     int yMin = std::min(vec0.y, std::min(vec1.y, vec2.y));
     int xMax = std::max(vec0.x, std::max(vec1.x, vec2.x));
     int yMax = std::max(vec0.y, std::max(vec1.y, vec2.y));
 
+    int bias0 = is_top_left(vec1, vec2) ? 0 : -1;
+    int bias1 = is_top_left(vec2, vec0) ? 0 : -1;
+    int bias2 = is_top_left(vec0, vec1) ? 0 : -1;
+
     for (int y = yMin; y <= yMax; y++){
         for (int x = xMin; x<= xMax; x++) {
             math::Vec2 p = math::Vec2(x, y);
 
-            int w0 = edge_cross(vec0, vec1, p);
-            int w1 = edge_cross(vec2, vec0, p);
-            int w2 = edge_cross(vec0, vec1, p);
+            int w0 = edge_cross(vec0, vec1, p) + bias0;
+            int w1 = edge_cross(vec2, vec0, p) + bias1;
+            int w2 = edge_cross(vec0, vec1, p) + bias2;
 
             if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
                 putPixel(x, y, color, pixels);
